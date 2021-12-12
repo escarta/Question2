@@ -84,7 +84,7 @@ namespace Question2
     }
     public class Card
     {
-        internal Card(int Value, Suites Suite)
+        public Card(int Value, Suites Suite)
         {
             this.Value = Value;
             this.Suite = Suite;
@@ -115,7 +115,7 @@ namespace Question2
             this.deck = deck;
         }
 
-        /// <summary>This method generates a randm wildcard
+        /// <summary>This method generates a random wildcard
         /// within the values provided by the user input (cardsPerSuite)
         /// </summary>
         internal Card wildCard(int cardsPerSuite)
