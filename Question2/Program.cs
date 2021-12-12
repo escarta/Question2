@@ -26,20 +26,21 @@ namespace Question2
         {
             if (state == Status.Playing && deck.deck.Count >= 2)
             {
-                var h = Shuffler.Shuffle(deck.deck);
-                var g = h.GetEnumerator();
-                g.MoveNext();
-                int player1Card = g.Current.Value;
-                Console.WriteLine("Player 1: {0}, {1}", g.Current.Value, g.Current.Suite);
-                g.MoveNext();
-                int player2Card = g.Current.Value;
-                Console.WriteLine("Player 1: {0}, {1}", g.Current.Value, g.Current.Suite);
-                if (player1Card > player2Card)
+                var sd = Shuffler.Shuffle(deck.deck).GetEnumerator();
+                Card[] playersCards = new Card[2];
+
+                for (int i = 0; i < 2; i++) {
+                    sd.MoveNext();
+                    playersCards[i] = new(sd.Current.Value, sd.Current.Suite);
+                    Console.WriteLine("Player {0}: {1} of {2}", i + 1, sd.Current.Value, sd.Current.Suite);
+                }
+
+                if (playersCards[0].Value > playersCards[1].Value)
                 {
                     winner = 1;
                     state = Status.Finished;
                 }
-                else if (player1Card < player2Card)
+                else if (playersCards[0].Value < playersCards[1].Value)
                 {
                     winner = 2;
                     state = Status.Finished;
@@ -49,9 +50,10 @@ namespace Question2
                 {
                     Console.WriteLine("Player {0} won the game", winner);
                 }
+
                 Console.WriteLine("Press a key to continue...\n");
                 Console.ReadKey();
-                deck.deck.RemoveAll(x => (x.Suite == g.Current.Suite) && (x.Value == g.Current.Value));
+                deck.deck.RemoveAll(x => (x.Suite == sd.Current.Suite) && (x.Value == sd.Current.Value));
             }
             else if (state == Status.Playing && deck.deck.Count < 2)
             {
