@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Question2;
 
 namespace HighCardTests
 {
@@ -6,8 +7,10 @@ namespace HighCardTests
     public class Tests
     {
         [TestMethod]
-        public void TestMethod1()
+        public void WildCardNotNull()
         {
+            HighCard game = new(20, 1);
+            Assert.IsNotNull(game.wildCard);
         }
     }
 }

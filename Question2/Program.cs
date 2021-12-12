@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿// compile with: -doc:DocFileName.xml 
+
+using System.Security.Cryptography;
 using System.Collections;
 
 namespace Question2
@@ -22,6 +24,9 @@ namespace Question2
             this.gameNumber = gameNumber;
         }
 
+        /// <summary>This method advances a hand and
+        ///    determines if the game was finished
+        /// </summary>
         public void DealHand()
         {
             if (state == Status.Playing && deck.deck.Count >= 2)
@@ -29,14 +34,17 @@ namespace Question2
                 var sd = Shuffler.Shuffle(deck.deck).GetEnumerator();
                 Card[] pc = new Card[2];
 
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 2; i++)
+                {
                     sd.MoveNext();
                     pc[i] = new(sd.Current.Value, sd.Current.Suite);
                     Console.WriteLine("Player {0}: {1} of {2}", i + 1, sd.Current.Value, sd.Current.Suite);
+                    deck.deck.RemoveAll(x => (x.Suite == sd.Current.Suite) && (x.Value == sd.Current.Value));
                 }
 
                 winner = (pc[0].Value == wildCard.Value && pc[0].Suite == wildCard.Suite ? 1 : (pc[1].Value == wildCard.Value && pc[1].Suite == wildCard.Suite) ? 2 : 0);
-                if (winner != 0) {
+                if (winner != 0)
+                {
                     Console.WriteLine("Player {0} got the wildcard: {1} of {2}", winner, pc[winner - 1].Value, pc[winner - 1].Suite);
                 }
 
@@ -59,7 +67,6 @@ namespace Question2
 
                 Console.WriteLine("Press a key to continue...\n");
                 Console.ReadKey();
-                deck.deck.RemoveAll(x => (x.Suite == sd.Current.Suite) && (x.Value == sd.Current.Value));
             }
             else if (state == Status.Playing && deck.deck.Count < 2)
             {
@@ -108,6 +115,9 @@ namespace Question2
             this.deck = deck;
         }
 
+        /// <summary>This method generates a randm wildcard
+        /// within the values provided by the user input (cardsPerSuite)
+        /// </summary>
         internal Card wildCard(int cardsPerSuite)
         {
             Card wildCard = new(Randomizer.Generator(1, cardsPerSuite + 1), (Card.Suites)Randomizer.Generator(0, 4));
@@ -121,6 +131,9 @@ namespace Question2
 
     class Randomizer
     {
+        /// <summary>This method is the randomizer used for
+        /// wildcards and for shuffling the decks
+        /// </summary>
         internal static int Generator(int minValue, int maxValue)
         {
             int rand = RandomNumberGenerator.GetInt32(minValue, maxValue);
@@ -130,6 +143,9 @@ namespace Question2
 
     class Shuffler
     {
+        /// <summary>This method is an implentation of the
+        /// Fisher-Yates shuffle algorithm
+        /// </summary>
         public static IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
         {
             var rng = Randomizer.Generator(0, source.Count() + 1);
@@ -174,6 +190,11 @@ namespace Question2
                 Console.Clear();
             } while (!games.All(game => game.state == HighCard.Status.Finished));
         }
+
+        /// <summary>This method is a helper used currently
+        ///  for selecting decks and cards per suite according
+        ///  to the user input range selected
+        /// </summary>
         static int helper(string text, int MINVALUE, int MAXVALUE)
         {
             int value;
