@@ -1,4 +1,8 @@
 ﻿// compile with: -doc:DocFileName.xml 
+// I know getters and setters are ugly, and are not
+// appropiate and that I should be doing
+// better encapsulation.
+// If I had more time I'll refactor everything...
 
 using System.Security.Cryptography;
 using System.Collections;
@@ -24,6 +28,21 @@ namespace Question2
             this.gameNumber = gameNumber;
         }
 
+        /// <summary>This method is an implentation of the
+        /// Fisher-Yates shuffle algorithm
+        /// </summary>
+        public IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
+        {
+            var rng = Randomizer.Generator(0, source.Count() + 1);
+            T[] elements = source.ToArray();
+            for (int i = elements.Length - 1; i >= 0; i--)
+            {
+                int swapIndex = Randomizer.Generator(0, source.Count());
+                yield return elements[swapIndex];
+                elements[swapIndex] = elements[i];
+            }
+        }
+
         /// <summary>This method advances a hand and
         ///    determines if the game was finished
         /// </summary>
@@ -31,7 +50,7 @@ namespace Question2
         {
             if (state == Status.Playing && deck.deck.Count >= 2)
             {
-                var sd = Shuffler.Shuffle(deck.deck).GetEnumerator();
+                var sd = Shuffle(deck.deck).GetEnumerator();
                 Card[] pc = new Card[2];
 
                 for (int i = 0; i < 2; i++)
@@ -143,20 +162,7 @@ namespace Question2
 
     class Shuffler
     {
-        /// <summary>This method is an implentation of the
-        /// Fisher-Yates shuffle algorithm
-        /// </summary>
-        public static IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
-        {
-            var rng = Randomizer.Generator(0, source.Count() + 1);
-            T[] elements = source.ToArray();
-            for (int i = elements.Length - 1; i >= 0; i--)
-            {
-                int swapIndex = Randomizer.Generator(0, source.Count());
-                yield return elements[swapIndex];
-                elements[swapIndex] = elements[i];
-            }
-        }
+
     }
 
     class Program
