@@ -1,31 +1,80 @@
 ﻿using System.Security.Cryptography;
-
+using System.Collections;
 
 namespace Question2
 {
-    class HighCard
+    public class HighCard
     {
-        internal HighCard(int cardsPerSuite, int numberOfPlayers)
+        public enum Status
         {
-
-            Deck deck = new(cardsPerSuite);
-            Card wildCard = deck.wildCard(cardsPerSuite);
-
+            Playing,
+            Finished
         }
 
-        int DealCard()
+        internal Status state;
+        internal int winner;
+
+        public HighCard(int cardsPerSuite, int gameNumber)
         {
-            return 0;
+            deck = new(cardsPerSuite);
+            wildCard = deck.wildCard(cardsPerSuite);
+            state = Status.Playing;
+            this.gameNumber = gameNumber;
         }
+
+        public void DealHand()
+        {
+            if (state == Status.Playing && deck.deck.Count >= 2)
+            {
+                var h = Shuffler.Shuffle(deck.deck);
+                var g = h.GetEnumerator();
+                g.MoveNext();
+                int player1Card = g.Current.Value;
+                Console.WriteLine("Player 1: {0}, {1}", g.Current.Value, g.Current.Suite);
+                g.MoveNext();
+                int player2Card = g.Current.Value;
+                Console.WriteLine("Player 1: {0}, {1}", g.Current.Value, g.Current.Suite);
+                if (player1Card > player2Card)
+                {
+                    winner = 1;
+                    state = Status.Finished;
+                }
+                else if (player1Card < player2Card)
+                {
+                    winner = 2;
+                    state = Status.Finished;
+                }
+
+                if (state == Status.Finished)
+                {
+                    Console.WriteLine("Player {0} won the game", winner);
+                }
+                Console.WriteLine("Press a key to continue...\n");
+                Console.ReadKey();
+                deck.deck.RemoveAll(x => (x.Suite == g.Current.Suite) && (x.Value == g.Current.Value));
+            }
+            else if (state == Status.Playing && deck.deck.Count < 2)
+            {
+                Console.WriteLine("Game tied");
+                state = Status.Finished;
+                Console.WriteLine("Press a key to continue...\n");
+                Console.ReadKey();
+            }
+        }
+
+
+        public Deck deck { get; private set; }
+        public Card wildCard { get; private set; }
+        public int gameNumber { get; private set; }
     }
-    class Card
+    public class Card
     {
         internal Card(int Value, Suites Suite)
         {
             this.Value = Value;
             this.Suite = Suite;
         }
-        internal enum Suites
+        public enum Suites
         {
             Hearts,
             Diamonds,
@@ -37,30 +86,33 @@ namespace Question2
 
     }
 
-    class Deck
+    public class Deck
     {
-        internal Deck(int cardsPerSuite)
+        public Deck(int cardsPerSuite)
         {
-            List<Card> deck = new List<Card>();
+            List<Card> deck = new();
             for (int i = 0; i < cardsPerSuite * 4; i++)
             {
                 Card.Suites suite = (Card.Suites)(Math.Floor((decimal)i / cardsPerSuite));
                 int value = (i % cardsPerSuite) + 1;
                 deck.Add(new Card(value, suite));
             }
+            this.deck = deck;
         }
 
         internal Card wildCard(int cardsPerSuite)
         {
-            Card wildCard = new Card(Randomizer.Generator(1, cardsPerSuite + 1), (Card.Suites)Randomizer.Generator(0, 4));
+            Card wildCard = new(Randomizer.Generator(1, cardsPerSuite + 1), (Card.Suites)Randomizer.Generator(0, 4));
             return wildCard;
         }
-        
-        
+
+        public List<Card> deck { get; private set; }
+
 
     }
 
-    class Randomizer {
+    class Randomizer
+    {
         internal static int Generator(int minValue, int maxValue)
         {
             int rand = RandomNumberGenerator.GetInt32(minValue, maxValue);
@@ -68,22 +120,55 @@ namespace Question2
         }
     }
 
+    class Shuffler
+    {
+        public static IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
+        {
+            var rng = Randomizer.Generator(0, source.Count() + 1);
+            T[] elements = source.ToArray();
+            for (int i = elements.Length - 1; i >= 0; i--)
+            {
+                int swapIndex = Randomizer.Generator(0, source.Count());
+                yield return elements[swapIndex];
+                elements[swapIndex] = elements[i];
+            }
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            const int MINPLAYERS = 2;
-            const int MAXPLAYERS = 10;
             const int MINCARDSPERSUITE = 2;
             const int MAXCARDSPERSUITE = 20;
-            int numberOfPlayers = 2;
-            int cardsPerSuite = 13;
-            numberOfPlayers = Helper("Players: ", numberOfPlayers, MINPLAYERS, MAXPLAYERS);
-            cardsPerSuite = Helper("Cards per suite", cardsPerSuite, MINCARDSPERSUITE, MAXCARDSPERSUITE);
+            int cardsPerSuite = helper("Cards per suite", MINCARDSPERSUITE, MAXCARDSPERSUITE);
+            const int MINDECKS = 1;
+            const int MAXDECKS = 5;
+            int numberOfDecks = helper("Decks to play: ", MINDECKS, MAXDECKS);
 
-            HighCard game1 = new HighCard(cardsPerSuite, numberOfPlayers);
+            HighCard[] games = new HighCard[numberOfDecks];
+
+            for (int i = 1; i <= numberOfDecks; i++)
+            {
+                games[i - 1] = new HighCard(cardsPerSuite, i);
+            }
+
+            do
+            {
+                foreach (HighCard g in games)
+                {
+                    if (g.state != HighCard.Status.Finished)
+                    {
+                        Console.WriteLine("Game number {0}", g.gameNumber);
+                        g.DealHand();
+                    }
+                }
+                Console.Clear();
+            } while (!games.All(game => game.state == HighCard.Status.Finished));
         }
-        static int Helper(string text, int value, int MINVALUE, int MAXVALUE) {
+        static int helper(string text, int MINVALUE, int MAXVALUE)
+        {
+            int value;
             do
             {
                 while (Console.KeyAvailable) Console.ReadKey(false);
