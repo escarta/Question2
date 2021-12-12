@@ -1,7 +1,7 @@
 ﻿// compile with: -doc:DocFileName.xml 
-// I know getters and setters are ugly, and are not
-// appropiate and that I should be doing
-// better encapsulation.
+// I know getters and setters are everywhere, and are not
+// appropiate for all the classes where they are now
+// and that I should be doing better encapsulation.
 // If I had more time I'll refactor everything...
 
 using System.Security.Cryptography;
