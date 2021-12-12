@@ -27,28 +27,34 @@ namespace Question2
             if (state == Status.Playing && deck.deck.Count >= 2)
             {
                 var sd = Shuffler.Shuffle(deck.deck).GetEnumerator();
-                Card[] playersCards = new Card[2];
+                Card[] pc = new Card[2];
 
                 for (int i = 0; i < 2; i++) {
                     sd.MoveNext();
-                    playersCards[i] = new(sd.Current.Value, sd.Current.Suite);
+                    pc[i] = new(sd.Current.Value, sd.Current.Suite);
                     Console.WriteLine("Player {0}: {1} of {2}", i + 1, sd.Current.Value, sd.Current.Suite);
                 }
 
-                if (playersCards[0].Value > playersCards[1].Value)
+                winner = (pc[0].Value == wildCard.Value && pc[0].Suite == wildCard.Suite ? 1 : (pc[1].Value == wildCard.Value && pc[1].Suite == wildCard.Suite) ? 2 : 0);
+                if (winner != 0) {
+                    Console.WriteLine("Player {0} got the wildcard: {1} of {2}", winner, pc[winner - 1].Value, pc[winner - 1].Suite);
+                }
+
+
+                if (pc[0].Value > pc[1].Value || winner == 1)
                 {
                     winner = 1;
                     state = Status.Finished;
                 }
-                else if (playersCards[0].Value < playersCards[1].Value)
+                else if (pc[0].Value < pc[1].Value || winner == 2)
                 {
                     winner = 2;
                     state = Status.Finished;
                 }
 
-                if (state == Status.Finished)
+                if (state == Status.Finished && winner != 0)
                 {
-                    Console.WriteLine("Player {0} won the game", winner);
+                    Console.WriteLine("Player {0} won", winner);
                 }
 
                 Console.WriteLine("Press a key to continue...\n");
