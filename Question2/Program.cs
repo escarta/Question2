@@ -134,7 +134,9 @@ namespace Question2
             deck = _deck;
         }
 
-
+        /// <summary>This method provides the count
+        /// about the remaining cards on the deck
+        /// </summary>
         public int Counter()
         {
             int value = deck.Count;
