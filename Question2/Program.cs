@@ -53,7 +53,7 @@ namespace Question2
         public void DealHand()
         {
             
-            if (state == Status.Playing && deckGame.Counter >= 2)
+            if (state == Status.Playing && deckGame.deck.Count >= 2)
             {
                 var sd = Shuffle(deckGame.deck).GetEnumerator();
                 Card[] pc = new Card[2];
@@ -92,7 +92,7 @@ namespace Question2
                 Console.WriteLine("Press a key to continue...\n");
                 Console.ReadKey();
             }
-            else if (state == Status.Playing && deckGame.Counter < 2)
+            else if (state == Status.Playing && deckGame.deck.Count < 2)
             {
                 Console.WriteLine("Game tied");
                 state = Status.Finished;
