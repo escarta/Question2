@@ -10,7 +10,7 @@ namespace HighCardTests
         public void WildCardNotNull()
         {
             HighCard game = new(20, 1);
-            Assert.IsNotNull(game.wildCard);
+            Assert.IsNotNull(game.wc);
         }
     }
 }

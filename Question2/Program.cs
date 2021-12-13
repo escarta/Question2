@@ -19,13 +19,17 @@ namespace Question2
 
         internal Status state;
         internal int winner;
+        public Deck deckGame;
+        public Card wc;
+        public int gameNumber;
 
-        public HighCard(int cardsPerSuite, int gameNumber)
+        public HighCard(int _cardsPerSuite, int _gameNumber)
         {
-            deck = new(cardsPerSuite);
-            wildCard = deck.wildCard(cardsPerSuite);
+            deckGame = new(_cardsPerSuite);
+            deckGame.createWildCard(_cardsPerSuite);
+            wc = deckGame.wildCard;
             state = Status.Playing;
-            this.gameNumber = gameNumber;
+            gameNumber = _gameNumber;
         }
 
         /// <summary>This method is an implentation of the
@@ -48,9 +52,10 @@ namespace Question2
         /// </summary>
         public void DealHand()
         {
-            if (state == Status.Playing && deck.deck.Count >= 2)
+            
+            if (state == Status.Playing && deckGame.deck.Count >= 2)
             {
-                var sd = Shuffle(deck.deck).GetEnumerator();
+                var sd = Shuffle(deckGame.deck).GetEnumerator();
                 Card[] pc = new Card[2];
 
                 for (int i = 0; i < 2; i++)
@@ -58,10 +63,10 @@ namespace Question2
                     sd.MoveNext();
                     pc[i] = new(sd.Current.Value, sd.Current.Suite);
                     Console.WriteLine("Player {0}: {1} of {2}", i + 1, sd.Current.Value, sd.Current.Suite);
-                    deck.deck.RemoveAll(x => (x.Suite == sd.Current.Suite) && (x.Value == sd.Current.Value));
+                    deckGame.deck.RemoveAll(x => (x.Suite == sd.Current.Suite) && (x.Value == sd.Current.Value));
                 }
 
-                winner = (pc[0].Value == wildCard.Value && pc[0].Suite == wildCard.Suite ? 1 : (pc[1].Value == wildCard.Value && pc[1].Suite == wildCard.Suite) ? 2 : 0);
+                winner = (pc[0].Value == wc.Value && pc[0].Suite == wc.Suite ? 1 : (pc[1].Value == wc.Value && pc[1].Suite == wc.Suite) ? 2 : 0);
                 if (winner != 0)
                 {
                     Console.WriteLine("Player {0} got the wildcard: {1} of {2}", winner, pc[winner - 1].Value, pc[winner - 1].Suite);
@@ -87,7 +92,7 @@ namespace Question2
                 Console.WriteLine("Press a key to continue...\n");
                 Console.ReadKey();
             }
-            else if (state == Status.Playing && deck.deck.Count < 2)
+            else if (state == Status.Playing && deckGame.deck.Count < 2)
             {
                 Console.WriteLine("Game tied");
                 state = Status.Finished;
@@ -95,11 +100,6 @@ namespace Question2
                 Console.ReadKey();
             }
         }
-
-
-        public Deck deck { get; private set; }
-        public Card wildCard { get; private set; }
-        public int gameNumber { get; private set; }
     }
     public class Card
     {
@@ -122,30 +122,34 @@ namespace Question2
 
     public class Deck
     {
-        public Deck(int cardsPerSuite)
+        public Deck(int _cardsPerSuite)
         {
-            List<Card> deck = new();
-            for (int i = 0; i < cardsPerSuite * 4; i++)
+            List<Card> _deck = new();
+            for (int i = 0; i < _cardsPerSuite * 4; i++)
             {
-                Card.Suites suite = (Card.Suites)(Math.Floor((decimal)i / cardsPerSuite));
-                int value = (i % cardsPerSuite) + 1;
-                deck.Add(new Card(value, suite));
+                Card.Suites suite = (Card.Suites)(Math.Floor((decimal)i / _cardsPerSuite));
+                int value = (i % _cardsPerSuite) + 1;
+                _deck.Add(new Card(value, suite));
             }
-            this.deck = deck;
+            deck = _deck;
         }
 
+
+        public int Counter()
+        {
+            int value = deck.Count;
+            return value;
+        }
         /// <summary>This method generates a random wildcard
         /// within the values provided by the user input (cardsPerSuite)
         /// </summary>
-        internal Card wildCard(int cardsPerSuite)
+        internal void createWildCard(int _cardsPerSuite)
         {
-            Card wildCard = new(Randomizer.Generator(1, cardsPerSuite + 1), (Card.Suites)Randomizer.Generator(0, 4));
-            return wildCard;
+            wildCard = new(Randomizer.Generator(1, _cardsPerSuite + 1), (Card.Suites)Randomizer.Generator(0, 4));
         }
 
+        public Card wildCard { get; private set; }
         public List<Card> deck { get; private set; }
-
-
     }
 
     class Randomizer
