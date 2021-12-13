@@ -160,11 +160,6 @@ namespace Question2
         }
     }
 
-    class Shuffler
-    {
-
-    }
-
     class Program
     {
         static void Main(string[] args)
